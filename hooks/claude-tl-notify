@@ -1,0 +1,4 @@
+#!/bin/bash
+# Claude Code Notification hook — Claude needs user input, turn red.
+cat > /dev/null
+printf 'waiting' > "$HOME/.local/share/claude-traffic-light/status"
