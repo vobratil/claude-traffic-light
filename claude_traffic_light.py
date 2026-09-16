@@ -74,33 +74,38 @@ def _icon_name(state: str) -> str:
     return f'claude-tl-{state}'
 
 
-def draw_icon(state: str, size: int = 64) -> str:
-    """Render a traffic-light PNG for *state*, save it, return the icon name."""
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
+def draw_icon(state: str, h: int = 22) -> str:
+    """Render a horizontal traffic-light PNG for *state*, return the icon name.
+
+    Layout: three lights side by side, each filling the full icon height.
+    Canvas is 3×h wide so every bulb gets roughly h×h of space.
+    """
+    w = h * 3
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
     ctx = cairo.Context(surface)
 
     ctx.set_operator(cairo.OPERATOR_CLEAR)
     ctx.paint()
     ctx.set_operator(cairo.OPERATOR_OVER)
 
-    s = size / 64.0  # scale factor from the 64-px reference grid
-
-    # Housing (dark rounded rectangle)
-    hx, hy, hw, hh, hr = 18*s, 2*s, 28*s, 60*s, 5*s
+    # Housing
+    margin, corner = 1, 3
     if state == 'idle':
         ctx.set_source_rgba(0.30, 0.30, 0.30, 0.50)
     else:
         ctx.set_source_rgba(0.12, 0.12, 0.12, 0.95)
-    _rounded_rect(ctx, hx, hy, hw, hh, hr)
+    _rounded_rect(ctx, margin, margin, w - 2*margin, h - 2*margin, corner)
     ctx.fill()
 
-    # Light positions on the 64-px grid: top = red, mid = orange, bot = green
+    # Lights: red left, orange centre, green right
+    lr  = (h - 4) / 2          # radius: fills height minus a 1 px border each side
+    cy  = h / 2
+    # evenly space the three centres across the width
     lights = [
-        (32*s, 14*s, 'red'),
-        (32*s, 32*s, 'orange'),
-        (32*s, 50*s, 'green'),
+        (w / 6,     cy, 'red'),
+        (w / 2,     cy, 'orange'),
+        (w * 5 / 6, cy, 'green'),
     ]
-    lr = 8 * s  # light radius
 
     on_rgb  = {'red': (1.00, 0.15, 0.10), 'orange': (1.00, 0.55, 0.00), 'green': (0.15, 0.95, 0.15)}
     off_rgb = {'red': (0.32, 0.05, 0.05), 'orange': (0.32, 0.18, 0.00), 'green': (0.05, 0.28, 0.05)}
@@ -117,10 +122,10 @@ def draw_icon(state: str, size: int = 64) -> str:
         r, g, b = (on_rgb if is_on else off_rgb)[color]
 
         if is_on:
-            # Soft glow rings behind the lit bulb
-            for i in range(3, 0, -1):
-                ctx.set_source_rgba(r, g, b, 0.07 * i)
-                ctx.arc(lx, ly, lr + i * 4 * s, 0, 2 * math.pi)
+            # Glow — kept tight so adjacent lights don't bleed into each other
+            for i in range(2, 0, -1):
+                ctx.set_source_rgba(r, g, b, 0.10 * i)
+                ctx.arc(lx, ly, lr + i * 2, 0, 2 * math.pi)
                 ctx.fill()
 
         ctx.set_source_rgba(r, g, b, 1.0)
@@ -128,7 +133,6 @@ def draw_icon(state: str, size: int = 64) -> str:
         ctx.fill()
 
         if is_on:
-            # Small specular highlight to sell the glassy look
             ctx.set_source_rgba(1.0, 1.0, 1.0, 0.35)
             ctx.arc(lx - lr * 0.30, ly - lr * 0.30, lr * 0.35, 0, 2 * math.pi)
             ctx.fill()
@@ -160,9 +164,10 @@ def is_claude_running() -> bool:
 
 def read_state() -> str:
     try:
-        with open(STATE_FILE) as f:
-            s = f.read().strip()
-        return s if s in ('ready', 'working', 'waiting') else 'ready'
+        s = open(STATE_FILE).read().strip()
+        if s not in ('ready', 'working', 'waiting'):
+            return 'ready'
+        return s
     except FileNotFoundError:
         return 'ready'
 
