@@ -18,12 +18,12 @@ mkdir -p "$HOME/.local/share/claude-traffic-light/icons"
 
 # ── autostart desktop entry ───────────────────────────────────────────────────
 mkdir -p "$HOME/.config/autostart"
-cat > "$HOME/.config/autostart/claude-traffic-light.desktop" << 'EOF'
+cat > "$HOME/.config/autostart/claude-traffic-light.desktop" << EOF
 [Desktop Entry]
 Type=Application
 Name=Claude Traffic Light
 Comment=System tray indicator for Claude Code status
-Exec=/home/vobratil/.local/bin/claude-traffic-light
+Exec=$HOME/.local/bin/claude-traffic-light
 Icon=preferences-system
 Hidden=false
 X-GNOME-Autostart-enabled=true
