@@ -10,7 +10,6 @@ echo "==> Installing Claude Traffic Light..."
 # ── binaries ─────────────────────────────────────────────────────────────────
 mkdir -p "$HOME/.local/bin"
 install -m 755 "$REPO/claude_traffic_light.py" "$HOME/.local/bin/claude-traffic-light"
-install -m 755 "$REPO/hooks/claude-tl-stop"   "$HOME/.local/bin/claude-tl-stop"
 install -m 755 "$REPO/hooks/claude-tl-notify" "$HOME/.local/bin/claude-tl-notify"
 
 # ── data directory ────────────────────────────────────────────────────────────

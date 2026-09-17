@@ -1,6 +1,0 @@
-#!/bin/bash
-# Claude Code Stop hook — signals that Claude finished and is ready for input.
-# Receives JSON on stdin: {"session_id":"...","transcript_path":"...","stop_hook_active":false}
-# Drain stdin so the hook doesn't block.
-cat > /dev/null
-printf 'ready' > "$HOME/.local/share/claude-traffic-light/status"

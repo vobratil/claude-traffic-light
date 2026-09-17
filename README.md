@@ -43,7 +43,7 @@ bash install.sh
 The installer:
 
 1. Copies `claude_traffic_light.py` to `~/.local/bin/claude-traffic-light`
-2. Copies the two hook scripts to `~/.local/bin/`
+2. Copies the hook script to `~/.local/bin/`
 3. Creates an autostart desktop entry so the indicator launches on login
 4. Injects the required hooks into `~/.claude/settings.json`
 
@@ -71,7 +71,7 @@ If the file is absent or Claude's process is not detected, the indicator shows *
 
 Two hooks in `~/.claude/settings.json` keep the state file up to date:
 
-- **Stop hook** (`claude-tl-stop`) — fires when Claude finishes a response; writes `ready`.
+- **Stop hook** — fires when Claude finishes a response; writes `ready` directly via an inline shell command.
 - **Notification hook** (`claude-tl-notify`) — fires for permission requests and completion alerts. Only writes `waiting` if the current state is not already `ready` (so a completion notification doesn't override the green light).
 
 ### Process detection
@@ -87,7 +87,6 @@ A lock file (`~/.local/share/claude-traffic-light/instance.lock`) is held with `
 ```
 ~/.local/bin/
   claude-traffic-light        # main indicator script
-  claude-tl-stop              # Stop hook
   claude-tl-notify            # Notification hook
 
 ~/.local/share/claude-traffic-light/
